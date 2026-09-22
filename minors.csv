@@ -1,0 +1,140 @@
+player_id,player_name,team_id,current_level,position,status_code,status_description,parent_team_id
+676498,Alex Cornwell,235,AAA,P,ILF,Injured - Full Season,138
+669697,Andrew Schultz,235,AAA,P,A,Active,138
+647378,Andy Yerzy,235,AAA,C,A,Active,138
+676153,Austin Love,235,AAA,P,A,Active,138
+676632,Bligh Madris,235,AAA,OF,A,Active,138
+822410,Bobby Olsen,235,AAA,P,A,Active,138
+825576,Brandt Thompson,235,AAA,P,A,Active,138
+690914,Brody Moore,235,AAA,2B,A,Active,138
+690971,Chase Davis,235,AAA,CF,A,Active,138
+807742,Colton Ledbetter,235,AAA,CF,A,Active,138
+703766,Dakota Harris,235,AAA,SS,A,Active,138
+677592,Everson Pereira,235,AAA,RF,RA,Rehab Assignment,138
+815104,Graysen Tarlow,235,AAA,C,A,Active,138
+684516,Hancel Rincon,235,AAA,P,A,Active,138
+809100,Ixan Henderson,235,AAA,P,D60,Injured 60-Day,138
+694363,Jared Shuster,235,AAA,P,A,Active,138
+699625,Jimmy Crooks,235,AAA,C,A,Active,138
+676596,Josh Fleming,235,AAA,P,A,Active,138
+701388,Jurrangelo Cijntje,235,AAA,P,A,Active,138
+695766,Mason Molina,235,AAA,P,A,Active,138
+694335,Matt Svanson,235,AAA,P,A,Active,138
+702331,Noah Mendlinger,235,AAA,RF,A,Active,138
+677337,Pete Hansen,235,AAA,P,A,Active,138
+680636,Ramon Mendoza,235,AAA,2B,A,Active,138
+690916,Richard Fitts,235,AAA,P,ILF,Injured - Full Season,138
+681676,Ryan Fernandez,235,AAA,P,A,Active,138
+694885,Ryan Murphy,235,AAA,P,A,Active,138
+811139,Sandro Santana,235,AAA,P,A,Active,138
+691828,Sem Robberse,235,AAA,P,D60,Injured 60-Day,138
+813766,Skylar Hales,235,AAA,P,A,Active,138
+694358,Tekoah Roby,235,AAA,P,D60,Injured 60-Day,138
+813852,Trey Paige,235,AAA,3B,A,Active,138
+804241,Zach Levenson,235,AAA,LF,A,Active,138
+668868,Zack Thompson,235,AAA,P,D60,Injured 60-Day,138
+820832,Blake Aita,440,AA,P,A,Active,138
+801078,Braden Davis,440,AA,P,A,Active,138
+801629,Cade McGee,440,AA,3B,A,Active,138
+800840,Chase Heath,440,AA,C,DEV,Development List,138
+813820,Chen-Wei Lin,440,AA,P,A,Active,138
+802371,Christian Worley,440,AA,P,A,Active,138
+811666,Daniel Eagen,440,AA,P,A,Active,138
+692404,Darlin Saladin,440,AA,P,A,Active,138
+811765,Deniel Ortiz,440,AA,3B,D7,Injured 7-Day,138
+822472,Domenic Picone,440,AA,P,A,Active,138
+814413,Ian Petrutz,440,AA,OF,A,Active,138
+701469,Jack Findlay,440,AA,P,A,Active,138
+813668,Jack Gurevitch,440,AA,1B,A,Active,138
+800305,Jesús  Báez,440,AA,SS,A,Active,138
+822501,Jon Jon Gazdar,440,AA,SS,A,Active,138
+692369,José Davila,440,AA,P,A,Active,138
+683165,Joseph King,440,AA,P,A,Active,138
+828824,Josiah Ragsdale,440,AA,OF,A,Active,138
+824604,Liam Doyle,440,AA,P,A,Active,138
+700720,Luis Pino,440,AA,CF,A,Active,138
+826314,Mason Burns,440,AA,P,ILF,Injured - Full Season,138
+828594,Michael Watson,440,AA,P,A,Active,138
+702296,Nate Dohm,440,AA,P,DEV,Development List,138
+822463,Nolan Sparks,440,AA,P,A,Active,138
+823787,Rainiel Rodriguez,440,AA,C,A,Active,138
+695003,Randel Clemente,440,AA,P,A,Active,138
+701481,Ryan Campos,440,AA,C,A,Active,138
+806191,Tai Peete,440,AA,OF,A,Active,138
+815119,Tanner Franklin,440,AA,P,A,Active,138
+802469,Travis Honeyman,440,AA,LF,D7,Injured 7-Day,138
+693832,Tre Richardson III,440,AA,2B,A,Active,138
+802680,Tyler Bradt,440,AA,P,D60,Injured 60-Day,138
+800231,Won-Bin Cho,440,AA,RF,A,Active,138
+823369,Yhoiker Fajardo,440,AA,P,A,Active,138
+801130,Alex Birge,443,A+,C,A,Active,138
+824713,Andrew Williamson,443,A+,OF,A,Active,138
+699031,Anyelo Encarnación,443,A+,SS,A,Active,138
+829670,Brayden Smith,443,A+,2B,A,Active,138
+701509,Brian Holiday,443,A+,P,A,Active,138
+694058,Bruno López,443,A+,P,D60,Injured 60-Day,138
+827265,Cade Crossland,443,A+,P,A,Active,138
+821299,Caden Ferraro,443,A+,OF,A,Active,138
+834897,Dylan Driessen,443,A+,P,A,Active,138
+692284,Frank Elissalt,443,A+,P,D60,Injured 60-Day,138
+692401,Gerardo Salas,443,A+,P,A,Active,138
+822956,Jack Martinez,443,A+,P,A,Active,138
+813838,Jacob Odle,443,A+,P,A,Active,138
+703602,Jalin Flores,443,A+,SS,A,Active,138
+699027,José Suárez,443,A+,RF,A,Active,138
+683165,Joseph King,443,A+,P,D60,Injured 60-Day,138
+811339,Josh Kross,443,A+,C,D60,Injured 60-Day,138
+800320,Leonel Sequera,443,A+,P,D60,Injured 60-Day,138
+807555,Liam Best,443,A+,P,A,Active,138
+809633,Michael Dattalo,443,A+,3B,A,Active,138
+800295,Nelfy Ynfante,443,A+,P,A,Active,138
+702642,Patrick Galle,443,A+,P,A,Active,138
+808048,Rubén Menes,443,A+,P,A,Active,138
+805550,Ryan Weingartner,443,A+,SS,A,Active,138
+803679,Sammy Hernandez,443,A+,C,A,Active,138
+823129,Trey Pooser,443,A+,P,A,Active,138
+803124,Tristan Bissetta,443,A+,OF,A,Active,138
+807549,Ty Van Dyke,443,A+,P,A,Active,138
+821107,Yairo Padilla,443,A+,SS,A,Active,138
+800266,Yordalin Peña,443,A+,CF,A,Active,138
+699575,Zeke Wood,443,A+,P,A,Active,138
+814085,Alan Reyes,279,A,P,D60,Injured 60-Day,138
+832225,Alex Breckheimer,279,A,P,D60,Injured 60-Day,138
+825484,Alexander Frias,279,A,OF,A,Active,138
+702254,Andrew Dutkanych IV,279,A,P,A,Active,138
+815919,Branneli Franco,279,A,P,A,Active,138
+841027,Brian Garmon,279,A,P,A,Active,138
+821036,Cristofer Lebrón,279,A,SS,A,Active,138
+839419,Dallis Moran,279,A,P,A,Active,138
+806131,Dee Kennedy,279,A,SS,A,Active,138
+821638,Earle Zulueta,279,A,P,A,Active,138
+831273,Ethan Young,279,A,P,A,Active,138
+814761,Gabe Camacho,279,A,OF,A,Active,138
+820976,Gabriel Chinchilla,279,A,P,A,Active,138
+812430,Heriberto Caraballo,279,A,C,A,Active,138
+823651,J.P. Cabrera,279,A,C,A,Active,138
+828330,JR Fordham,279,A,P,A,Active,138
+841026,Jacob Haley,279,A,P,A,Active,138
+814835,Jaden Alba,279,A,P,A,Active,138
+835657,Jake Shelagowski,279,A,P,D60,Injured 60-Day,138
+831050,Jan Cabrera,279,A,P,A,Active,138
+813488,Jayden Lobliner,279,A,C,A,Active,138
+814086,Jefferson Moran,279,A,P,A,Active,138
+821276,Jesús García,279,A,P,A,Active,138
+800243,Jovi Gálvez,279,A,P,A,Active,138
+805505,Justin Militello,279,A,P,A,Active,138
+834989,Kaden Echeman,279,A,P,A,Active,138
+808138,Keiverson Ramírez,279,A,P,A,Active,138
+829077,Kenly Hunter,279,A,OF,A,Active,138
+834681,Matthew Miura,279,A,CF,A,Active,138
+829791,Miguel Hernández,279,A,SS,A,Active,138
+835433,Nathan Shinn,279,A,P,A,Active,138
+842711,Owen Henne,279,A,IF,A,Active,138
+804979,Payton Graham,279,A,P,A,Active,138
+689506,Robbie Knowles,279,A,P,D60,Injured 60-Day,138
+815829,Ryan Mitchell,279,A,OF,A,Active,138
+829741,Sebastian Dos Santos,279,A,SS,A,Active,138
+825891,Trevor Condon,279,A,CF,A,Active,138
+695579,Trevor Haskins,279,A,SS,A,Active,138
+808081,Xavier Cruz,279,A,P,ILF,Injured - Full Season,138
+810098,Yadiel Batista,279,A,P,A,Active,138

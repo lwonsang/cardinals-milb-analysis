@@ -3,6 +3,7 @@ import pandas as pd
 
 MIN_PA = 50
 TEAM_ID = 138
+TEAM_LEVELS = {235: "AAA", 440: "AA", 443: "A+", 279: "A"}
 
 def get_cardinals_minor_league_stats(team_id, season=2026, player_pool="ALL"):
     affiliates = get_team_affiliates(team_id, season=season)
@@ -55,6 +56,63 @@ def get_team_affiliates(team_id, season=2026):
         }
         for team in teams
     }
+
+def get_current_roster(team_id, season=2026, rosterType='fullRoster'):
+    response = requests.get(
+        f'https://statsapi.mlb.com/api/v1/teams/{team_id}/roster',
+        params={
+            'season': season,
+            'rosterType': rosterType,
+            'hydrate': 'person'
+        }
+    )
+    response.raise_for_status()
+
+    return response.json()['roster']
+
+def get_current_minor_league_rosters(season=2026):
+    rows = []
+
+    for team_id, level in TEAM_LEVELS.items():
+        data = get_current_roster(team_id, season=season)
+
+        for player in data:
+            position = player.get("position", {})
+            status = player.get("status", {})
+
+            rows.append({
+                "player_id": player["person"]["id"],
+                "player_name": player["person"]["fullName"],
+                "team_id": team_id,
+                "current_level": level,
+                "position": position.get("abbreviation"),
+                "status_code": status.get("code"),
+                "status_description": status.get("description"),
+                "parent_team_id": player.get("parentTeamId")
+            })
+
+    return pd.DataFrame(rows)
+
+def get_current_major_league_roster(team_id, season=2026, rosterType='active'):
+    rows = []
+    data = get_current_roster(team_id, season=season, rosterType=rosterType)
+    
+    for player in data:
+        position = player.get("position", {})
+        status = player.get("status", {})
+
+        rows.append({
+            "player_id": player["person"]["id"],
+            "player_name": player["person"]["fullName"],
+            "team_id": team_id,
+            "current_level": "MLB",
+            "position": position.get("abbreviation"),
+            "status_code": status.get("code"),
+            "status_description": status.get("description"),
+            "parent_team_id": player.get("parentTeamId")
+        })
+
+    return pd.DataFrame(rows)
 
 def get_team_stats(team_id, season=2026, group="hitting", player_pool="ALL"):
     response = requests.get(
