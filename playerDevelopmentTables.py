@@ -5,15 +5,34 @@ from teamStats import get_cardinals_minor_league_stats, get_current_minor_league
 
 MIN_PA = 50
 TEAM_ID = 138
+SEASONS = [2025,2026]
 
-def createPlayerDevelopmentTable(historical_records, current_status):
+def createPlayerDevelopmentTable(historical_batting, historical_pitching, current_status):
     players = {}
+    batting_player_ids = set(historical_batting["player_id"])
+    pitching_player_ids = set(historical_pitching["player_id"])
 
-    for player_id, group in historical_records.groupby("player_id"):
+    player_ids = batting_player_ids | pitching_player_ids
+
+    for player_id in player_ids:
+        batting_group = historical_batting[
+            historical_batting["player_id"] == player_id
+        ]
+
+        pitching_group = historical_pitching[
+            historical_pitching["player_id"] == player_id
+        ]
 
         player_status = current_status[
             current_status["player_id"] == player_id
         ]
+
+        if not batting_group.empty:
+            player_name = batting_group["player_name"].iloc[0]
+        elif not pitching_group.empty:
+            player_name = pitching_group["player_name"].iloc[0]
+        else:
+            player_name = "Unknown"
 
         if not player_status.empty:
             status = player_status.iloc[0]
@@ -34,29 +53,51 @@ def createPlayerDevelopmentTable(historical_records, current_status):
 
         players[player_id] = {
             "player_id": player_id,
-            "name": group["player_name"].iloc[0],
+            "name": player_name,
 
             "current_status": current_status_data,
 
-            "stints": group[
-                [
-                    "team_id",
-                    "team_name",
-                    "level",
-                    "league",
-                    "age",
-                    "plate_appearances",
-                    "avg",
-                    "obp",
-                    "slg",
-                    "ops",
-                    "k_rate",
-                    "bb_rate",
-                    "iso",
-                ]
-            ].to_dict("records")
+            "hitting": {
+                "stints": batting_group[
+                    [
+                        "team_id",
+                        "team_name",
+                        "season",
+                        "level",
+                        "league",
+                        "age",
+                        "plate_appearances",
+                        "avg",
+                        "obp",
+                        "slg",
+                        "ops",
+                        "k_rate",
+                        "bb_rate",
+                        "iso",
+                    ]
+                ].to_dict("records")
+            },
+
+            "pitching": {
+                "stints": pitching_group[
+                    [
+                        "team_id",
+                        "team_name",
+                        "season",
+                        "level",
+                        "league",
+                        "age",
+                        "innings_pitched",
+                        "era",
+                        "whip",
+                        "strikeouts_per_9",
+                        "walks_per_9",
+                        "hr_per_9",
+                    ]
+                ].to_dict("records")
+            }
         }
-        # print(players[player_id])
+        print(players[player_id])
 
     return players
 
@@ -116,35 +157,45 @@ def createCurrentStatus(minors, active, fortyman):
             continue
     return pd.DataFrame(rows)
 
-def createDataTables():
-    historical_records = get_cardinals_minor_league_stats(TEAM_ID)
-    historical_records["pa"] = pd.to_numeric(
-        historical_records["plate_appearances"], errors="coerce"
+def createBattingDataTables():
+    historical_batting = get_cardinals_minor_league_stats(TEAM_ID, seasons=SEASONS)
+    historical_batting["pa"] = pd.to_numeric(
+        historical_batting["plate_appearances"], errors="coerce"
     )
 
-    historical_records["strikeouts"] = pd.to_numeric(
-        historical_records["strikeouts"], errors="coerce"
+    historical_batting["strikeouts"] = pd.to_numeric(
+        historical_batting["strikeouts"], errors="coerce"
     )
 
-    historical_records["walks"] = pd.to_numeric(
-        historical_records["walks"], errors="coerce"
+    historical_batting["walks"] = pd.to_numeric(
+        historical_batting["walks"], errors="coerce"
     )
 
-    historical_records["avg"] = pd.to_numeric(historical_records["avg"], errors="coerce")
-    historical_records["slg"] = pd.to_numeric(historical_records["slg"], errors="coerce")
+    historical_batting["avg"] = pd.to_numeric(historical_batting["avg"], errors="coerce")
+    historical_batting["slg"] = pd.to_numeric(historical_batting["slg"], errors="coerce")
 
-    historical_records["k_rate"] = historical_records["strikeouts"] / historical_records["pa"].replace(0, pd.NA)
-    historical_records["bb_rate"] = historical_records["walks"] / historical_records["pa"].replace(0, pd.NA)
-    historical_records["iso"] = historical_records["slg"] - historical_records["avg"]
+    historical_batting["k_rate"] = historical_batting["strikeouts"] / historical_batting["pa"].replace(0, pd.NA)
+    historical_batting["bb_rate"] = historical_batting["walks"] / historical_batting["pa"].replace(0, pd.NA)
+    historical_batting["iso"] = historical_batting["slg"] - historical_batting["avg"]
 
-    historical_records["sample_size"] = historical_records["plate_appearances"].apply(classify_sample_size)
+    historical_batting["sample_size"] = historical_batting["plate_appearances"].apply(classify_sample_size)
     
-    historical_records.to_csv("cardinals.csv", index=False)
-    return historical_records
+    historical_batting.to_csv("cardinals_milb_batters.csv", index=False)
+    return historical_batting
 
-def createPlayerSummary(historical_records):
+def createPitchingDataTables():
+    historical_pitching = get_cardinals_minor_league_stats(TEAM_ID, group="pitching", seasons=SEASONS)
+    historical_pitching["ip_decimal"] = historical_pitching[
+        "innings_pitched"
+    ].apply(innings_pitched_to_decimal)
+    historical_pitching["hr_per_9"] = (historical_pitching["home_runs_allowed"] / historical_pitching["ip_decimal"].replace(0, pd.NA) * 9)
+    # historical_pitching["sample_size"] = historical_pitching["innings_pitched"].apply(classify_sample_size)
+    historical_pitching.to_csv("cardinals_milb_pitchers.csv", index=False)
+    return historical_pitching
+
+def createPlayerSummary(historical_batting):
     player_summary = (
-        historical_records
+        historical_batting
         .groupby(["player_id", "player_name"])
         .agg(
             levels=("level", list),
@@ -157,8 +208,8 @@ def createPlayerSummary(historical_records):
     # print(player_summary.shape)
     return player_summary
 
-def createQualifiedRankings(historical_records):
-    qualified_df = historical_records[historical_records["pa"] >= MIN_PA]
+def createQualifiedRankings(historical_batting):
+    qualified_df = historical_batting[historical_batting["pa"] >= MIN_PA]
     cards_df = qualified_df[
         [
             "player_name",
@@ -210,8 +261,27 @@ def resolve_minor_league_status(player_records):
 
     return player_records.iloc[0]
 
+def innings_pitched_to_decimal(ip):
+    if pd.isna(ip):
+        return pd.NA
+
+    whole, remainder = str(ip).split(".")
+
+    whole = int(whole)
+    remainder = int(remainder)
+
+    if remainder == 0:
+        return whole
+    elif remainder == 1:
+        return whole + (1 / 3)
+    elif remainder == 2:
+        return whole + (2 / 3)
+    else:
+        raise ValueError(f"Unexpected innings pitched value: {ip}")
+
 if __name__ == "__main__":
-    historical_records = createDataTables()
+    historical_batting = createBattingDataTables()
+    historical_pitching = createPitchingDataTables()
     minor_league_rosters = get_current_minor_league_rosters()
     minor_league_rosters.to_csv("minors.csv", index=False)
     active_major_league_roster = get_current_major_league_roster(TEAM_ID, rosterType="active")
@@ -219,8 +289,6 @@ if __name__ == "__main__":
     active_major_league_roster.to_csv("active.csv", index=False)
     forty_man_major_league_roster.to_csv("forty_man.csv", index=False)
     current_status = createCurrentStatus(minor_league_rosters, active_major_league_roster, forty_man_major_league_roster)
-    player_development_table = createPlayerDevelopmentTable(historical_records, current_status)
-    createPlayerSummary(historical_records)
-    createQualifiedRankings(historical_records)
-    for player_id in [823787, 699024, 663457]:
-        print(player_development_table[player_id])
+    player_development_table = createPlayerDevelopmentTable(historical_batting, historical_pitching, current_status)
+    createPlayerSummary(historical_batting)
+    createQualifiedRankings(historical_batting)

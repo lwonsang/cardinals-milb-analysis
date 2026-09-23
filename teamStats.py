@@ -5,33 +5,42 @@ MIN_PA = 50
 TEAM_ID = 138
 TEAM_LEVELS = {235: "AAA", 440: "AA", 443: "A+", 279: "A"}
 
-def get_cardinals_minor_league_stats(team_id, season=2026, player_pool="ALL"):
-    affiliates = get_team_affiliates(team_id, season=season)
+def get_cardinals_minor_league_stats(team_id, group="hitting", seasons=None, player_pool="ALL"):
+    if seasons is None:
+        seasons = [2026]
 
     target_sports = {11, 12, 13, 14}
-
+        
     all_stats = []
 
-    for team_id, team in affiliates.items():
-
-        sport_id = team["sport"]["id"]
-
-        if sport_id not in target_sports:
-            continue
-
-        print(f"Getting {team['name']}...")
-
-        data = get_team_stats(
-            team_id,
-            season=season,
-            group="hitting",
-            player_pool=player_pool
-        )
-
-        df = stats_to_dataframe(data)
-
-        all_stats.append(df)
-
+    for season in seasons:
+        affiliates = get_team_affiliates(team_id, season=season)
+    
+        for affiliate_id, team in affiliates.items():
+    
+            sport_id = team["sport"]["id"]
+    
+            if sport_id not in target_sports:
+                continue
+    
+            # print(f"Getting {team['name']}...")
+    
+            data = get_team_stats(
+                affiliate_id,
+                season=season,
+                group=group,
+                player_pool=player_pool
+            )
+    
+            if group == "hitting":
+                df = batting_stats_to_dataframe(data, season)
+            elif group == "pitching":
+                df = pitching_stats_to_dataframe(data, season)
+            else:
+                raise ValueError(f"Invalid group: {group}")
+    
+            all_stats.append(df)
+    
     return pd.concat(all_stats, ignore_index=True)
 
 def get_team_affiliates(team_id, season=2026):
@@ -122,7 +131,8 @@ def get_team_stats(team_id, season=2026, group="hitting", player_pool="ALL"):
             "group": group,
             "season": season,
             "teamId": team_id,
-            "playerPool": player_pool
+            "playerPool": player_pool,
+            "limit": 1000
         }
     )
 
@@ -130,7 +140,7 @@ def get_team_stats(team_id, season=2026, group="hitting", player_pool="ALL"):
     return response.json()
 
 
-def stats_to_dataframe(data):
+def batting_stats_to_dataframe(data, season):
     rows = []
 
     for stat_group in data["stats"]:
@@ -147,6 +157,7 @@ def stats_to_dataframe(data):
                 "player_name": player["fullName"],
                 "team_id": team["id"],
                 "team_name": team["name"],
+                "season": season,
                 "league": split["league"]["name"],
                 "level": sport["abbreviation"],
                 "position": position.get("abbreviation"),
@@ -182,3 +193,54 @@ def stats_to_dataframe(data):
 
     return pd.DataFrame(rows)
 
+def pitching_stats_to_dataframe(data, season):
+    rows = []
+
+    for stat_group in data["stats"]:
+        for split in stat_group["splits"]:
+
+            stat = split["stat"]
+            player = split["player"]
+            team = split["team"]
+            sport = split["sport"]
+
+            rows.append({
+                "player_id": player["id"],
+                "player_name": player["fullName"],
+                "team_id": team["id"],
+                "team_name": team["name"],
+                "season": season,
+                "league": split["league"]["name"],
+                "level": sport["abbreviation"],
+                "position": split.get("position", {}).get("abbreviation"),
+                "age": stat.get("age"),
+
+                "games": stat.get("gamesPlayed"),
+                "games_started": stat.get("gamesStarted"),
+
+                "wins": stat.get("wins"),
+                "losses": stat.get("losses"),
+
+                "innings_pitched": stat.get("inningsPitched"),
+
+                "hits_allowed": stat.get("hits"),
+                "runs_allowed": stat.get("runs"),
+                "earned_runs": stat.get("earnedRuns"),
+                "home_runs_allowed": stat.get("homeRuns"),
+
+                "walks": stat.get("baseOnBalls"),
+                "strikeouts": stat.get("strikeOuts"),
+
+                "era": stat.get("era"),
+                "whip": stat.get("whip"),
+
+                "strikeouts_per_9": stat.get("strikeoutsPer9Inn"),
+                "walks_per_9": stat.get("walksPer9Inn"),
+                "hits_per_9": stat.get("hitsPer9Inn"),
+                "strikeout_walk_ratio": stat.get("strikeoutWalkRatio"),
+
+                "saves": stat.get("saves"),
+                "holds": stat.get("holds"),
+            })
+
+    return pd.DataFrame(rows)
