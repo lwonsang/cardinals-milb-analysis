@@ -1,0 +1,5 @@
+
+MIN_PA = 50
+TEAM_ID = 138
+SEASONS = [2025,2026]
+TEAM_LEVELS = {235: "AAA", 440: "AA", 443: "A+", 279: "A"}

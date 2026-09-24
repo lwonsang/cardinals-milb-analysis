@@ -79,10 +79,10 @@ def get_current_roster(team_id, season=2026, rosterType='fullRoster'):
 
     return response.json()['roster']
 
-def get_current_minor_league_rosters(season=2026):
+def get_current_minor_league_rosters(team_levels=TEAM_LEVELS, season=2026):
     rows = []
 
-    for team_id, level in TEAM_LEVELS.items():
+    for team_id, level in team_levels.items():
         data = get_current_roster(team_id, season=season)
 
         for player in data:
