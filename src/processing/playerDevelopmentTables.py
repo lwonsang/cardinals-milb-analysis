@@ -1,7 +1,6 @@
 from src.processing.historical_batting import createBattingDataTables
 from src.processing.historical_pitching import createPitchingDataTables
 from src.processing.current_status import createCurrentStatus
-from src.api.teamStats import get_current_minor_league_rosters, get_current_major_league_roster
 
 def createPlayerDevelopmentTable(historical_batting, historical_pitching, current_status):
     players = {}
