@@ -6,7 +6,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("St. Louis Cardinals Minor League Player Development")
+st.title("St. Louis Cardinals Minor League Organization View")
 
 batting = pd.read_parquet(
     "data/processed/historical_batting.parquet"
@@ -119,6 +119,8 @@ with hitters_tab:
             "doubles": None,
             "triples": None,
             "home_runs": "HR",
+            "walks": None,
+            "strikeouts": None,
             "rbi": None,
             "stolen_bases": None,
             "caught_stealing": None,
@@ -196,39 +198,39 @@ with pitchers_tab:
     ]
 
     pitching_frame = st.dataframe(
-            filtered_pitching, 
-            column_config={
-                "player_id": None,
-                "player_name": "Player Name",
-                "team_id": None,
-                "team_name": "Team Name",
-                "season": "Season",
-                "league": "League",
-                "level": "Level",
-                "position": None,
-                "age": "Age",
-                "games": None,
-                "games_started": None,
-                "wins": None,
-                "losses": None,
-                "innings_pitched": "IP",
-                "hits_allowed": None,
-                "runs_allowed": None,
-                "earned_runs": None,
-                "home_runs_allowed": None,
-                "walks": None,
-                "strikeouts": None,
-                "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
-                "whip": st.column_config.NumberColumn( "WHIP", format="%.2f", ),
-                "strikeouts_per_9": st.column_config.NumberColumn( "K/9", format="%.2f", ),
-                "walks_per_9": st.column_config.NumberColumn( "BB/9", format="%.2f", ),
-                "hits_per_9": st.column_config.NumberColumn( "H/9", format="%.2f", ),
-                "strikeout_walk_ratio": st.column_config.NumberColumn( "K/BB", format="%.2f", ),
-                "saves": "SV",
-                "holds": None,
-                "ip_decimal": None,
-                "hr_per_9": st.column_config.NumberColumn( "HR/9", format="%.2f", ),
-            },
-            use_container_width=True,
-            hide_index=True
-        )
+        filtered_pitching, 
+        column_config={
+            "player_id": None,
+            "player_name": "Player Name",
+            "team_id": None,
+            "team_name": "Team Name",
+            "season": "Season",
+            "league": "League",
+            "level": "Level",
+            "position": None,
+            "age": "Age",
+            "games": None,
+            "games_started": None,
+            "wins": None,
+            "losses": None,
+            "innings_pitched": "IP",
+            "hits_allowed": None,
+            "runs_allowed": None,
+            "earned_runs": None,
+            "home_runs_allowed": None,
+            "walks": None,
+            "strikeouts": None,
+            "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
+            "whip": st.column_config.NumberColumn( "WHIP", format="%.2f", ),
+            "strikeouts_per_9": st.column_config.NumberColumn( "K/9", format="%.2f", ),
+            "walks_per_9": st.column_config.NumberColumn( "BB/9", format="%.2f", ),
+            "hits_per_9": st.column_config.NumberColumn( "H/9", format="%.2f", ),
+            "strikeout_walk_ratio": st.column_config.NumberColumn( "K/BB", format="%.2f", ),
+            "saves": "SV",
+            "holds": None,
+            "ip_decimal": None,
+            "hr_per_9": st.column_config.NumberColumn( "HR/9", format="%.2f", ),
+        },
+        use_container_width=True,
+        hide_index=True
+    )
