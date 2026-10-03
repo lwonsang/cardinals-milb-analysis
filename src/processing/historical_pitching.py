@@ -1,9 +1,9 @@
-from src.api.teamStats import get_cardinals_minor_league_stats
+from src.api.teamStats import get_current_cardinals_milb_history
 import pandas as pd
-from src.processing.config import TEAM_ID, SEASONS, TEAM_LEVELS
+from src.processing.config import TEAM_ID, START_SEASON, END_SEASON, TEAM_LEVELS
 
-def createPitchingDataTables(team_id=TEAM_ID, seasons=SEASONS):
-    historical_pitching = get_cardinals_minor_league_stats(team_id, group="pitching", seasons=seasons)
+def createPitchingDataTables(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEASON):
+    historical_pitching = get_current_cardinals_milb_history(parent_team_id=team_id, group="pitching",start_season=start_season, end_season=end_season)
     historical_pitching["ip_decimal"] = historical_pitching[
         "innings_pitched"
     ].apply(innings_pitched_to_decimal)

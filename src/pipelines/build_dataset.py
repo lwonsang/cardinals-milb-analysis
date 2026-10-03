@@ -1,4 +1,4 @@
-from src.processing.config import TEAM_ID, SEASONS
+from src.processing.config import TEAM_ID, START_SEASON, END_SEASON
 from src.processing.historical_batting import createBattingDataTables
 from src.processing.historical_pitching import createPitchingDataTables
 from src.processing.current_status import createCurrentStatus
@@ -13,15 +13,17 @@ PROCESSED_DATA_DIR = Path("data/processed")
 PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def build_dataset(team_id=TEAM_ID, seasons=SEASONS):
+def build_dataset(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEASON):
     historical_batting = createBattingDataTables(
         team_id=team_id,
-        seasons=seasons,
+        start_season=start_season,
+        end_season=end_season,
     )
 
     historical_pitching = createPitchingDataTables(
         team_id=team_id,
-        seasons=seasons,
+        start_season=start_season,
+        end_season=end_season,
     )
 
     minor_league_rosters = get_current_minor_league_rosters()

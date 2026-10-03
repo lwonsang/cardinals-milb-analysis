@@ -4,6 +4,18 @@ import plotly.express as px
 
 st.title("St. Louis Cardinals Minor League Player Development View")
 
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebarNav"] {
+            display: none;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 batting = pd.read_parquet(
     "data/processed/historical_batting.parquet"
 )
@@ -20,6 +32,11 @@ hitters_tab, pitchers_tab = st.tabs(
     ["Hitters", "Pitchers"]
 )
 
+player_id = st.session_state.get("selected_player_id")
+
+if st.button("← Back to Dashboard"):
+    st.switch_page("app.py")
+
 with hitters_tab:
     st.subheader("Cardinals MiLB Hitters")
 
@@ -27,10 +44,27 @@ with hitters_tab:
         batting["player_name"].dropna().unique()
     )
 
+    if player_id is not None:
+        player_id = int(player_id)
+        matching_players = batting[
+            batting["player_id"] == player_id
+        ]
+
+        if matching_players.empty:
+            st.error(
+                "No matching player found for player id {}".format(player_id)
+            )
+            st.stop()
+
+        selected_player = matching_players["player_name"].iloc[0]
+        selected_index = player_names.index(selected_player)
+    else:
+        selected_index = 0
+
     selected_player = st.selectbox(
         "Player Name",
         player_names,
-        index=0,
+        index=selected_index,
     )
 
     player_batting = batting[
@@ -53,41 +87,24 @@ with hitters_tab:
 
     st.subheader(player_batting["player_name"].iloc[-1])
 
-    if current_cardinals_player:
-        status_row = player_status.iloc[0]
+    status_row = player_status.iloc[0]
 
-        col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-        col1.metric(
-            "Position",
-            player_batting["position"].iloc[-1],
-        )
+    col1.metric(
+        "Position",
+        player_batting["position"].iloc[-1],
+    )
 
-        col2.metric(
-            "Current Level",
-            status_row["current_level"],
-        )
+    col2.metric(
+        "Current Level",
+        status_row["current_level"],
+    )
 
-        col3.metric(
-            "Age",
-            player_batting["age"].iloc[-1],
-        )
-    else:
-        st.write(
-            "This player is not currently on the Cardinals roster."
-        )
-        
-        col1, col2 = st.columns(2)
-
-        col1.metric(
-            "Position",
-            player_batting["position"].iloc[-1],
-        )
-
-        col2.metric(
-            "Last Cardinals Level",
-            player_batting["level"].iloc[-1],
-        )
+    col3.metric(
+        "Age",
+        player_batting["age"].iloc[-1],
+    )
 
     batting_frame = st.dataframe(
     player_batting, 
@@ -97,7 +114,7 @@ with hitters_tab:
         "team_id": None,
         "team_name": "Team Name",
         "season": "Season",
-        "league": "League",
+        "league": None,
         "level": "Level",
         "position": "Position",
         "age": "Age",
@@ -130,21 +147,6 @@ with hitters_tab:
     hide_index=True
 )
 
-    # player_batting["period"] = (
-    #     player_batting["season"].astype(str)
-    #     + " "
-    #     + player_batting["level"]
-    # )
-
-    # fig = px.line(
-    #     player_batting,
-    #     x="period",
-    #     y="ops",
-    #     markers=True,
-    # )
-
-    # st.plotly_chart(fig, use_container_width=True)
-
 with pitchers_tab:
     st.subheader("Cardinals MiLB Pitchers")
 
@@ -152,10 +154,27 @@ with pitchers_tab:
         pitching["player_name"].dropna().unique()
     )
 
+    if player_id is not None:
+        player_id = int(player_id)
+        matching_players = pitching[
+            pitching["player_id"] == player_id
+        ]
+
+        if matching_players.empty:
+            st.error(
+                "No matching player found for player id {}".format(player_id)
+            )
+            st.stop()
+
+        selected_player = matching_players["player_name"].iloc[0]
+        selected_index = player_names.index(selected_player)
+    else:
+        selected_index = 0
+
     selected_player = st.selectbox(
         "Player Name",
         player_names,
-        index=0,
+        index=selected_index,
     )
 
     player_pitching = pitching[
@@ -178,41 +197,24 @@ with pitchers_tab:
 
     st.subheader(player_pitching["player_name"].iloc[-1])
 
-    if current_cardinals_player:
-        status_row = player_status.iloc[0]
+    status_row = player_status.iloc[0]
 
-        col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-        col1.metric(
-            "Position",
-            player_pitching["position"].iloc[-1],
-        )
+    col1.metric(
+        "Position",
+        player_pitching["position"].iloc[-1],
+    )
 
-        col2.metric(
-            "Current Level",
-            status_row["current_level"],
-        )
+    col2.metric(
+        "Current Level",
+        status_row["current_level"],
+    )
 
-        col3.metric(
-            "Age",
-            player_pitching["age"].iloc[-1],
-        )
-    else:
-        st.write(
-            "This player is not currently on the Cardinals roster."
-        )
-
-        col1, col2 = st.columns(2)
-
-        col1.metric(
-            "Position",
-            player_pitching["position"].iloc[-1],
-        )
-
-        col2.metric(
-            "Last Cardinals Level",
-            player_pitching["level"].iloc[-1],
-        )
+    col3.metric(
+        "Age",
+        player_pitching["age"].iloc[-1],
+    )
 
     pitching_frame = st.dataframe(
         player_pitching, 
@@ -222,7 +224,7 @@ with pitchers_tab:
             "team_id": None,
             "team_name": "Team Name",
             "season": "Season",
-            "league": "League",
+            "league": None,
             "level": "Level",
             "position": None,
             "age": "Age",

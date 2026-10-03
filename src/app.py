@@ -4,7 +4,20 @@ import pandas as pd
 st.set_page_config(
     page_title="Cardinals Player Development",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebarNav"] {
+            display: none;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 st.title("St. Louis Cardinals Minor League Organization View")
 
@@ -24,6 +37,9 @@ hitters_tab, pitchers_tab = st.tabs(
     ["Hitters", "Pitchers"]
 )
 
+def go_to_player_profile(player_id): 
+    st.session_state["selected_player_id"] = int(player_id) 
+    st.switch_page("pages/player_profile.py")
 
 with hitters_tab:
     st.subheader("Batting")
@@ -99,6 +115,36 @@ with hitters_tab:
         filtered_batting["pa"] >= min_pa
     ]
 
+    st.markdown("### Player Profile") 
+    
+    if not filtered_batting.empty:
+        player_options = ( 
+            filtered_batting[ 
+                ["player_id", "player_name"] 
+            ] 
+            .drop_duplicates() 
+            .sort_values("player_name") 
+        ) 
+        
+        selected_player_name = st.selectbox( 
+            "Select a player to view their development profile", 
+            player_options["player_name"].tolist(), 
+            key="selected_hitter", 
+        ) 
+        
+        selected_player_id = player_options.loc[ 
+            player_options["player_name"] == selected_player_name, 
+            "player_id", 
+        ].iloc[0] 
+        
+        if st.button(
+            "View Player Profile →", 
+            key="view_hitter_profile", 
+        ): 
+            go_to_player_profile(selected_player_id) 
+    else:
+        st.info("No players match the selected filters.")
+
     batting_frame = st.dataframe(
         filtered_batting, 
         column_config={
@@ -107,7 +153,7 @@ with hitters_tab:
             "team_id": None,
             "team_name": "Team Name",
             "season": "Season",
-            "league": "League",
+            "league": None,
             "level": "Level",
             "position": "Position",
             "age": "Age",
@@ -197,6 +243,36 @@ with pitchers_tab:
         filtered_pitching["ip_decimal"] >= min_ip
     ]
 
+    st.markdown("### Player Profile") 
+    
+    if not filtered_pitching.empty:
+        player_options = ( 
+            filtered_pitching[ 
+                ["player_id", "player_name"] 
+            ] 
+            .drop_duplicates() 
+            .sort_values("player_name") 
+        ) 
+        
+        selected_player_name = st.selectbox( 
+            "Select a player to view their development profile", 
+            player_options["player_name"].tolist(), 
+            key="selected_pitcher", 
+        ) 
+        
+        selected_player_id = player_options.loc[ 
+            player_options["player_name"] == selected_player_name, 
+            "player_id", 
+        ].iloc[0] 
+        
+        if st.button(
+            "View Player Profile →", 
+            key="view_pitcher_profile", 
+        ): 
+            go_to_player_profile(selected_player_id) 
+    else:
+        st.info("No players match the selected filters.")
+
     pitching_frame = st.dataframe(
         filtered_pitching, 
         column_config={
@@ -205,7 +281,7 @@ with pitchers_tab:
             "team_id": None,
             "team_name": "Team Name",
             "season": "Season",
-            "league": "League",
+            "league": None,
             "level": "Level",
             "position": None,
             "age": "Age",
