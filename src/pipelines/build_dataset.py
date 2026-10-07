@@ -1,8 +1,9 @@
-from src.processing.config import TEAM_ID, START_SEASON, END_SEASON
+from src.processing.config import TEAM_ID, START_SEASON, END_SEASON, MINOR_LEAGUE_LEVELS
 from src.processing.historical_batting import createBattingDataTables
 from src.processing.historical_pitching import createPitchingDataTables
 from src.processing.current_status import createCurrentStatus
 from src.processing.playerDevelopmentTables import createPlayerDevelopmentTable
+from src.processing.level_baselines import create_hitting_level_baselines, create_pitching_level_baselines
 from src.api.teamStats import (
     get_current_minor_league_rosters,
     get_current_major_league_roster,
@@ -50,11 +51,20 @@ def build_dataset(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEA
         current_status,
     )
 
+    hitting_level_baselines = {}
+    pitching_level_baselines = {}
+
+    for sport_id in MINOR_LEAGUE_LEVELS:
+        hitting_level_baselines[sport_id] = create_hitting_level_baselines(sport_id, season=end_season)
+        pitching_level_baselines[sport_id] = create_pitching_level_baselines(sport_id, season=end_season)
+
     return {
         "historical_batting": historical_batting,
         "historical_pitching": historical_pitching,
         "current_status": current_status,
         "player_development": player_development,
+        "hitting_level_baselines": hitting_level_baselines,
+        "pitching_level_baselines": pitching_level_baselines
     }
 
 if __name__ == "__main__":
@@ -74,5 +84,16 @@ if __name__ == "__main__":
         PROCESSED_DATA_DIR / "current_status.parquet",
         index=False,
     )
+
+    for sport_id in MINOR_LEAGUE_LEVELS:
+        datasets["hitting_level_baselines"][sport_id].to_parquet(
+            PROCESSED_DATA_DIR / f"hitting_level_baselines_{END_SEASON}_{MINOR_LEAGUE_LEVELS[sport_id]}.parquet",
+            index=False,
+        )
+
+        datasets["pitching_level_baselines"][sport_id].to_parquet(
+            PROCESSED_DATA_DIR / f"pitching_level_baselines_{END_SEASON}_{MINOR_LEAGUE_LEVELS[sport_id]}.parquet",
+            index=False,
+        )
 
     print("Dataset build complete.")

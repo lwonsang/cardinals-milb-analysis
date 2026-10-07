@@ -4,6 +4,7 @@ import pandas as pd
 MIN_PA = 50
 TEAM_ID = 138
 TEAM_LEVELS = {235: "AAA", 440: "AA", 443: "A+", 279: "A"}
+MINOR_LEAGUE_LEVELS = {11: "AAA", 12: "AA", 13: "A+", 14: "A"}
 
 def get_current_cardinals_milb_history(parent_team_id=TEAM_ID, group="hitting", start_season=2026, end_season=2026, player_pool="ALL"):
     current_minor_league_players = get_current_minor_league_rosters(team_levels=TEAM_LEVELS, season=end_season)
@@ -143,6 +144,46 @@ def get_team_stats(team_id, season=2026, group="hitting", player_pool="ALL", sta
     response.raise_for_status()
     return response.json()
 
+def get_team_ids_for_level(sport_id, season=2026):
+    team_list = []
+
+    response = requests.get(
+        "https://statsapi.mlb.com/api/v1/teams",
+        params={
+            "sportId": sport_id,
+            "season": season
+        }
+    )
+
+    response.raise_for_status()
+
+    for team in response.json()['teams']:
+        team_list.append(team['id'])
+
+    return team_list
+
+def get_all_stats_per_level(sport_id, season=2026, group="hitting", player_pool="ALL", stats="season"):
+    all_stats = []
+    for team_id in get_team_ids_for_level(sport_id, season=season):
+        stats = get_team_stats(
+            team_id,
+            group=group,
+            season=season,
+            player_pool=player_pool
+        )
+
+        splits = stats["stats"][0]["splits"]
+
+        for split in splits:
+            if group=="hitting":
+                row = normalize_batting_stats(split, season=season, level=MINOR_LEAGUE_LEVELS[sport_id])
+            elif group=="pitching":
+                row = normalize_pitching_stats(split, season=season, level=MINOR_LEAGUE_LEVELS[sport_id])
+
+            all_stats.append(row)
+
+    return pd.DataFrame(all_stats)
+
 def normalize_batting_stats(split, season, level):
     stat = split["stat"]
     player = split["player"]
@@ -174,6 +215,10 @@ def normalize_batting_stats(split, season, level):
 
         "walks": stat.get("baseOnBalls"),
         "strikeouts": stat.get("strikeOuts"),
+
+        "hbp": stat.get("hitByPitch"),
+        "sac_fly": stat.get("sacFly"),
+        "sac_bunt": stat.get("sacBunt"),
 
         "avg": stat.get("avg"),
         "obp": stat.get("obp"),
