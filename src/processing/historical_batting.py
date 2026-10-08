@@ -7,17 +7,11 @@ def createBattingDataTables(team_id=TEAM_ID, start_season=START_SEASON, end_seas
     historical_batting["pa"] = pd.to_numeric(
         historical_batting["plate_appearances"], errors="coerce"
     )
-
-    historical_batting["strikeouts"] = pd.to_numeric(
-        historical_batting["strikeouts"], errors="coerce"
-    )
-
-    historical_batting["walks"] = pd.to_numeric(
-        historical_batting["walks"], errors="coerce"
-    )
-
-    historical_batting["avg"] = pd.to_numeric(historical_batting["avg"], errors="coerce")
-    historical_batting["slg"] = pd.to_numeric(historical_batting["slg"], errors="coerce")
+    for metric in ["strikeouts", "walks", "avg", "obp", "slg", "ops"]:
+        historical_batting[metric] = pd.to_numeric(
+            historical_batting[metric],
+            errors="coerce",
+        )
 
     historical_batting["k_rate"] = historical_batting["strikeouts"] / historical_batting["pa"].replace(0, pd.NA)
     historical_batting["bb_rate"] = historical_batting["walks"] / historical_batting["pa"].replace(0, pd.NA)

@@ -7,6 +7,12 @@ def createPitchingDataTables(team_id=TEAM_ID, start_season=START_SEASON, end_sea
     historical_pitching["ip_decimal"] = historical_pitching[
         "innings_pitched"
     ].apply(innings_pitched_to_decimal)
+    for metric in ["era", "whip", "strikeouts_per_9", "walks_per_9", "hits_per_9", "strikeout_walk_ratio"]:
+        historical_pitching[metric] = pd.to_numeric(
+            historical_pitching[metric],
+            errors="coerce",
+        )
+
     historical_pitching["hr_per_9"] = (historical_pitching["home_runs_allowed"] / historical_pitching["ip_decimal"].replace(0, pd.NA) * 9)
     # historical_pitching["sample_size"] = historical_pitching["innings_pitched"].apply(classify_sample_size)
     return historical_pitching

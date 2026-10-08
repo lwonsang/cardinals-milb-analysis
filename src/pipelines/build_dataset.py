@@ -4,11 +4,13 @@ from src.processing.historical_pitching import createPitchingDataTables
 from src.processing.current_status import createCurrentStatus
 from src.processing.playerDevelopmentTables import createPlayerDevelopmentTable
 from src.processing.level_baselines import create_hitting_level_baselines, create_pitching_level_baselines
+from src.processing.baseline_comparison_metrics import create_hitting_baseline_comparison_metrics, create_pitching_baseline_comparison_metrics
 from src.api.teamStats import (
     get_current_minor_league_rosters,
     get_current_major_league_roster,
 )
 from pathlib import Path
+import pandas as pd
 
 PROCESSED_DATA_DIR = Path("data/processed")
 PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -51,12 +53,48 @@ def build_dataset(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEA
         current_status,
     )
 
-    hitting_level_baselines = {}
-    pitching_level_baselines = {}
+    hitting_level_baselines = []
+    pitching_level_baselines = []
 
-    for sport_id in MINOR_LEAGUE_LEVELS:
-        hitting_level_baselines[sport_id] = create_hitting_level_baselines(sport_id, season=end_season)
-        pitching_level_baselines[sport_id] = create_pitching_level_baselines(sport_id, season=end_season)
+    hitting_level_baselines_by_age = []
+    pitching_level_baselines_by_age = []
+    age_categories = ["season", "level", "age"]
+
+    for season in range(start_season, end_season + 1):
+        for sport_id in MINOR_LEAGUE_LEVELS:
+            hitting_level_baselines.append(create_hitting_level_baselines(sport_id, season=season))
+            pitching_level_baselines.append(create_pitching_level_baselines(sport_id, season=season))
+            hitting_level_baselines_by_age.append(create_hitting_level_baselines(sport_id, season=season, group_by=age_categories))
+            pitching_level_baselines_by_age.append(create_pitching_level_baselines(sport_id, season=season, group_by=age_categories))
+
+    hitting_level_baselines = pd.concat(
+        hitting_level_baselines,
+        ignore_index=True,
+    )
+    hitting_level_baselines_by_age = pd.concat(
+        hitting_level_baselines_by_age,
+        ignore_index=True,
+    )
+    pitching_level_baselines = pd.concat(
+        pitching_level_baselines,
+        ignore_index=True,
+    )
+    pitching_level_baselines_by_age = pd.concat(
+        pitching_level_baselines_by_age,
+        ignore_index=True,
+    )
+
+    hitting_development = create_hitting_baseline_comparison_metrics(
+        historical_batting,
+        hitting_level_baselines,
+        hitting_level_baselines_by_age,
+    )
+    
+    pitching_development = create_pitching_baseline_comparison_metrics(
+        historical_pitching,
+        pitching_level_baselines,
+        pitching_level_baselines_by_age
+    )
 
     return {
         "historical_batting": historical_batting,
@@ -64,7 +102,11 @@ def build_dataset(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEA
         "current_status": current_status,
         "player_development": player_development,
         "hitting_level_baselines": hitting_level_baselines,
-        "pitching_level_baselines": pitching_level_baselines
+        "pitching_level_baselines": pitching_level_baselines,
+        "hitting_level_baselines_by_age": hitting_level_baselines_by_age,
+        "pitching_level_baselines_by_age": pitching_level_baselines_by_age,
+        "hitting_development": hitting_development,
+        "pitching_development": pitching_development
     }
 
 if __name__ == "__main__":
@@ -85,15 +127,14 @@ if __name__ == "__main__":
         index=False,
     )
 
-    for sport_id in MINOR_LEAGUE_LEVELS:
-        datasets["hitting_level_baselines"][sport_id].to_parquet(
-            PROCESSED_DATA_DIR / f"hitting_level_baselines_{END_SEASON}_{MINOR_LEAGUE_LEVELS[sport_id]}.parquet",
-            index=False,
-        )
+    datasets["hitting_development"].to_parquet(
+        PROCESSED_DATA_DIR / "hitting_development.parquet",
+        index=False,
+    )
 
-        datasets["pitching_level_baselines"][sport_id].to_parquet(
-            PROCESSED_DATA_DIR / f"pitching_level_baselines_{END_SEASON}_{MINOR_LEAGUE_LEVELS[sport_id]}.parquet",
-            index=False,
-        )
+    datasets["pitching_development"].to_parquet(
+        PROCESSED_DATA_DIR / "pitching_development.parquet",
+        index=False,
+    )
 
     print("Dataset build complete.")

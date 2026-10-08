@@ -1,10 +1,6 @@
 import requests
 import pandas as pd
-
-MIN_PA = 50
-TEAM_ID = 138
-TEAM_LEVELS = {235: "AAA", 440: "AA", 443: "A+", 279: "A"}
-MINOR_LEAGUE_LEVELS = {11: "AAA", 12: "AA", 13: "A+", 14: "A"}
+from src.processing.config import TEAM_ID, START_SEASON, END_SEASON, TEAM_LEVELS, MINOR_LEAGUE_LEVELS
 
 def get_current_cardinals_milb_history(parent_team_id=TEAM_ID, group="hitting", start_season=2026, end_season=2026, player_pool="ALL"):
     current_minor_league_players = get_current_minor_league_rosters(team_levels=TEAM_LEVELS, season=end_season)
@@ -217,8 +213,8 @@ def normalize_batting_stats(split, season, level):
         "strikeouts": stat.get("strikeOuts"),
 
         "hbp": stat.get("hitByPitch"),
-        "sac_fly": stat.get("sacFly"),
-        "sac_bunt": stat.get("sacBunt"),
+        "sac_fly": stat.get("sacFlies"),
+        "sac_bunt": stat.get("sacBunts"),
 
         "avg": stat.get("avg"),
         "obp": stat.get("obp"),
