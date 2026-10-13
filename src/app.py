@@ -33,6 +33,14 @@ status = pd.read_parquet(
     "data/processed/current_status.parquet"
 )
 
+hitting_development = pd.read_parquet(
+    "data/processed/hitting_development.parquet"
+)
+
+pitching_development = pd.read_parquet(
+    "data/processed/pitching_development.parquet"
+)
+
 hitters_tab, pitchers_tab = st.tabs(
     ["Hitters", "Pitchers"]
 )
@@ -42,7 +50,7 @@ def go_to_player_profile(player_id):
     st.switch_page("pages/player_profile.py")
 
 with hitters_tab:
-    st.subheader("Batting")
+    st.subheader("Cardinals MiLB Hitter Development View")
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -115,8 +123,6 @@ with hitters_tab:
         filtered_batting["pa"] >= min_pa
     ]
 
-    st.markdown("### Player Profile") 
-    
     if not filtered_batting.empty:
         player_options = ( 
             filtered_batting[ 
@@ -145,6 +151,102 @@ with hitters_tab:
     else:
         st.info("No players match the selected filters.")
 
+    st.markdown("### Hitters to Keep an Eye on")
+    st.caption("Find hitters outperforming level and age baselines.") 
+    development_columns = [
+        "player_id",
+        "season",
+        "level",
+        "ops_vs_level",
+        "ops_vs_age_level",
+    ]
+
+    available_columns = [
+        col for col in development_columns
+        if col in hitting_development.columns
+    ]
+
+    hitter_board = batting.merge(
+        hitting_development[available_columns].drop_duplicates(
+            subset=["player_id", "season", "level"]
+        ),
+        on=["player_id", "season", "level"],
+        how="left",
+    )
+
+    hitter_board = hitter_board[
+        hitter_board["season"] == batting_season
+    ].copy()
+
+    if batting_level != "All":
+        hitter_board = hitter_board[
+            hitter_board["level"] == batting_level
+        ]
+
+    if batting_position != "All":
+        hitter_board = hitter_board[
+            hitter_board["position"] == batting_position
+        ]
+
+    hitter_board = hitter_board[
+        hitter_board["pa"] >= min_pa
+    ].copy()
+
+    hitter_board = hitter_board.sort_values(
+        "ops_vs_level",
+        ascending=False,
+        na_position="last",
+    )
+
+    display_columns = [
+        "player_id",
+        "player_name",
+        "age",
+        "position",
+        "level",
+        "pa",
+        "ops",
+        "ops_vs_level",
+        "ops_vs_age_level",
+    ]
+
+    display_columns = [
+        col for col in display_columns
+        if col in hitter_board.columns
+    ]
+
+    st.dataframe(
+        hitter_board[display_columns],
+        column_config={
+            "player_id": None,
+            "player_name": "Player",
+            "age": "Age",
+            "position": "Position",
+            "level": "Level",
+            "pa": st.column_config.NumberColumn(
+                "PA",
+                format="%d",
+            ),
+            "ops": st.column_config.NumberColumn(
+                "OPS",
+                format="%.3f",
+            ),
+            "ops_vs_level": st.column_config.NumberColumn(
+                "OPS vs Level",
+                format="%+.3f",
+                help="Player OPS minus the overall level baseline.",
+            ),
+            "ops_vs_age_level": st.column_config.NumberColumn(
+                "OPS vs Age/Level",
+                format="%+.3f",
+                help="Player OPS minus the age-and-level baseline.",
+            ),
+        },
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    st.markdown("### Full Cardinals MiLB Batting Stats")
     batting_frame = st.dataframe(
         filtered_batting, 
         column_config={
@@ -193,7 +295,7 @@ with hitters_tab:
     )
 
 with pitchers_tab:
-    st.subheader("Pitching")
+    st.subheader("Cardinals MiLB Pitcher Development View")
 
     col1, col2, col3= st.columns(3)
 
@@ -249,8 +351,6 @@ with pitchers_tab:
         filtered_pitching["ip_decimal"] >= min_ip
     ]
 
-    st.markdown("### Player Profile") 
-    
     if not filtered_pitching.empty:
         player_options = ( 
             filtered_pitching[ 
@@ -279,6 +379,81 @@ with pitchers_tab:
     else:
         st.info("No players match the selected filters.")
 
+    st.markdown("### Pitchers to Keep an Eye on") 
+    st.caption("Find pitchers outperforming level and age baselines.") 
+    development_columns = [
+        "player_id",
+        "season",
+        "level",
+        "era_vs_level",
+        "era_vs_age_level",
+    ]
+
+    available_columns = [
+        col for col in development_columns
+        if col in pitching_development.columns
+    ]
+
+    pitcher_board = pitching.merge(
+        pitching_development[available_columns].drop_duplicates(
+            subset=["player_id", "season", "level"]
+        ),
+        on=["player_id", "season", "level"],
+        how="left",
+    )
+
+    pitcher_board = pitcher_board[
+        pitcher_board["season"] == pitching_season
+    ].copy()
+
+    if pitching_level != "All":
+        pitcher_board = pitcher_board[
+            pitcher_board["level"] == pitching_level
+        ]
+
+    pitcher_board = pitcher_board[
+        pitcher_board["ip_decimal"] >= min_ip
+    ].copy()
+
+    pitcher_board = pitcher_board.sort_values(
+        "era_vs_level",
+        ascending=True,
+        na_position="last",
+    )
+
+    display_columns = [
+        "player_id",
+        "player_name",
+        "age",
+        "level",
+        "ip",
+        "era",
+        "era_vs_level",
+        "era_vs_age_level",
+    ]
+
+    display_columns = [
+        col for col in display_columns
+        if col in pitcher_board.columns
+    ]
+
+    st.dataframe(
+        pitcher_board[display_columns],
+        column_config={
+            "player_id": None,
+            "player_name": "Player",
+            "age": "Age",
+            "level": "Level",
+            "ip": "IP",
+            "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
+            "era_vs_level": st.column_config.NumberColumn( "ERA vs Level", format="%.2f", ),
+            "era_vs_age_level": st.column_config.NumberColumn( "ERA vs Age Level", format="%.2f", ),
+        },
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    st.markdown("### Full Cardinals MiLB Pitching Stats")
     pitching_frame = st.dataframe(
         filtered_pitching, 
         column_config={
