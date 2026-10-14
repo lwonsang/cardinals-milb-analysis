@@ -293,6 +293,9 @@ with hitters_tab:
             name="Level Average OPS",
             marker=dict(size=7),
             line=dict(dash="dot"),
+            hovertemplate=(
+                "OPS: %{y:.3f}<br>"
+            ),
         ))
 
     fig.add_trace(
@@ -303,6 +306,9 @@ with hitters_tab:
             name="Age Level Average OPS",
             marker=dict(size=7),
             line=dict(dash="dash"),
+            hovertemplate=(
+                "OPS: %{y:.3f}<br>"
+            ),
         ))
 
     fig.update_layout(
@@ -633,6 +639,9 @@ with pitchers_tab:
             mode="lines+markers",
             name="Level Average ERA",
             line=dict(dash="dot"),
+            hovertemplate=(
+                "ERA: %{y:.2f}<br>"
+            ),
         ))
 
     fig.add_trace(
@@ -642,6 +651,9 @@ with pitchers_tab:
             mode="lines+markers",
             name="Age Level Average ERA",
             line=dict(dash="dash"),
+            hovertemplate=(
+                "ERA: %{y:.2f}<br>"
+            ),
         ))
 
     fig.update_layout(
