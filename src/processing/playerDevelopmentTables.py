@@ -91,39 +91,3 @@ def createPlayerDevelopmentTable(historical_batting, historical_pitching, curren
         # print(players[player_id])
 
     return players
-
-# def createPlayerSummary(historical_batting):
-#     player_summary = (
-#         historical_batting
-#         .groupby(["player_id", "player_name"])
-#         .agg(
-#             levels=("level", list),
-#             total_pa=("plate_appearances", "sum"),
-#             num_levels=("level", "nunique"),
-#         )
-#         .reset_index()
-#     )
-#     # print(player_summary.head())
-#     # print(player_summary.shape)
-#     return player_summary
-
-# def createQualifiedRankings(historical_batting):
-#     qualified_df = historical_batting[historical_batting["pa"] >= MIN_PA]
-#     cards_df = qualified_df[
-#         [
-#             "player_name",
-#             "level",
-#             "age",
-#             "plate_appearances",
-#             "sample_size",
-#             "home_runs",
-#             "avg",
-#             "obp",
-#             "slg",
-#             "ops",
-#             "k_rate",
-#             "bb_rate",
-#             "iso"
-#         ]
-#     ].sort_values("ops", ascending=False).head(15)
-#     return cards_df

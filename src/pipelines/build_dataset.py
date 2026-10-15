@@ -101,10 +101,6 @@ def build_dataset(team_id=TEAM_ID, start_season=START_SEASON, end_season=END_SEA
         "historical_pitching": historical_pitching,
         "current_status": current_status,
         "player_development": player_development,
-        "hitting_level_baselines": hitting_level_baselines,
-        "pitching_level_baselines": pitching_level_baselines,
-        "hitting_level_baselines_by_age": hitting_level_baselines_by_age,
-        "pitching_level_baselines_by_age": pitching_level_baselines_by_age,
         "hitting_development": hitting_development,
         "pitching_development": pitching_development
     }

@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from src.processing.config import TEAM_ID, START_SEASON, END_SEASON, TEAM_LEVELS, MINOR_LEAGUE_LEVELS
 
-def get_current_cardinals_milb_history(parent_team_id=TEAM_ID, group="hitting", start_season=2026, end_season=2026, player_pool="ALL"):
+def get_current_cardinals_milb_history(parent_team_id=TEAM_ID, group="hitting", start_season=START_SEASON, end_season=END_SEASON, player_pool="ALL"):
     current_minor_league_players = get_current_minor_league_rosters(team_levels=TEAM_LEVELS, season=end_season)
 
     current_player_ids = set(
