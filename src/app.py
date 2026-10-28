@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from components.batting_data import get_seasonal_batting_data, get_level_batting_data, get_positional_batting_data, get_all_batting_data, get_hitting_development_data, get_top_hitters, get_basic_batting_column_config, get_top_hitters_column_config
+from components.pitching_data import get_seasonal_pitching_data, get_level_pitching_data, get_all_pitching_data, get_pitching_development_data, get_top_pitchers, get_basic_pitching_column_config, get_top_pitchers_column_config
 
 st.set_page_config(
     page_title="Cardinals Player Development",
@@ -18,28 +20,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 st.title("St. Louis Cardinals Minor League Organization View")
-
-batting = pd.read_parquet(
-    "data/processed/historical_batting.parquet"
-)
-
-pitching = pd.read_parquet(
-    "data/processed/historical_pitching.parquet"
-)
-
-status = pd.read_parquet(
-    "data/processed/current_status.parquet"
-)
-
-hitting_development = pd.read_parquet(
-    "data/processed/hitting_development.parquet"
-)
-
-pitching_development = pd.read_parquet(
-    "data/processed/pitching_development.parquet"
-)
 
 hitters_tab, pitchers_tab = st.tabs(
     ["Hitters", "Pitchers"]
@@ -54,10 +35,9 @@ with hitters_tab:
 
     col1, col2, col3, col4 = st.columns(4)
 
-    batting_seasons = sorted(
-        batting["season"].dropna().unique(),
-        reverse=True,
-    )
+    batting = get_all_batting_data()
+
+    batting_seasons = get_seasonal_batting_data()
 
     with col1:
         batting_season = st.selectbox(
@@ -71,9 +51,7 @@ with hitters_tab:
             key="batting_season",
         )
 
-    batting_levels = sorted(
-        batting["level"].dropna().unique()
-    )
+    batting_levels = get_level_batting_data()
 
     with col2:
         batting_level = st.selectbox(
@@ -83,9 +61,7 @@ with hitters_tab:
             key="batting_level",
         )
 
-    batting_positions = sorted(
-        batting["position"].dropna().unique()
-    )
+    batting_positions = get_positional_batting_data()
 
     with col3:
         batting_position = st.selectbox(
@@ -151,51 +127,16 @@ with hitters_tab:
     else:
         st.info("No players match the selected filters.")
 
+    hitting_development = get_hitting_development_data()
+
     st.markdown("### Hitters to Keep an Eye on")
     st.caption("Find hitters outperforming level and age baselines.") 
-    development_columns = [
-        "player_id",
-        "season",
-        "level",
-        "ops_vs_level",
-        "ops_vs_age_level",
-    ]
 
-    available_columns = [
-        col for col in development_columns
-        if col in hitting_development.columns
-    ]
-
-    hitter_board = batting.merge(
-        hitting_development[available_columns].drop_duplicates(
-            subset=["player_id", "season", "level"]
-        ),
-        on=["player_id", "season", "level"],
-        how="left",
-    )
-
-    hitter_board = hitter_board[
-        hitter_board["season"] == batting_season
-    ].copy()
-
-    if batting_level != "All":
-        hitter_board = hitter_board[
-            hitter_board["level"] == batting_level
-        ]
-
-    if batting_position != "All":
-        hitter_board = hitter_board[
-            hitter_board["position"] == batting_position
-        ]
-
-    hitter_board = hitter_board[
-        hitter_board["pa"] >= min_pa
-    ].copy()
-
-    hitter_board = hitter_board.sort_values(
-        "ops_vs_level",
-        ascending=False,
-        na_position="last",
+    hitter_board = get_top_hitters(
+        batting_season,
+        batting_level,
+        batting_position,
+        min_pa,
     )
 
     display_columns = [
@@ -215,81 +156,21 @@ with hitters_tab:
         if col in hitter_board.columns
     ]
 
+    top_hitters_column_config = get_top_hitters_column_config()
+
     st.dataframe(
         hitter_board[display_columns],
-        column_config={
-            "player_id": None,
-            "player_name": "Player",
-            "age": "Age",
-            "position": "Position",
-            "level": "Level",
-            "pa": st.column_config.NumberColumn(
-                "PA",
-                format="%d",
-            ),
-            "ops": st.column_config.NumberColumn(
-                "OPS",
-                format="%.3f",
-            ),
-            "ops_vs_level": st.column_config.NumberColumn(
-                "OPS vs Level",
-                format="%+.3f",
-                help="Player OPS minus the overall level baseline.",
-            ),
-            "ops_vs_age_level": st.column_config.NumberColumn(
-                "OPS vs Age/Level",
-                format="%+.3f",
-                help="Player OPS minus the age-and-level baseline.",
-            ),
-        },
+        column_config=top_hitters_column_config,
         hide_index=True,
         use_container_width=True,
     )
 
+    basic_hitters_column_config = get_basic_batting_column_config()
+
     st.markdown("### Full Cardinals MiLB Batting Stats")
     batting_frame = st.dataframe(
         filtered_batting, 
-        column_config={
-            "player_id": None,
-            "player_name": "Player Name",
-            "team_id": None,
-            "team_name": "Team Name",
-            "season": "Season",
-            "league": None,
-            "level": "Level",
-            "position": "Position",
-            "age": "Age",
-            "games": None,
-            "plate_appearances": "PA",
-            "at_bats": None,
-            "hits": None,
-            "runs": None,
-            "doubles": None,
-            "triples": None,
-            "home_runs": "HR",
-            "hbp": None,
-            "sac_fly": None,
-            "sac_bunt": None,
-            "walks": None,
-            "strikeouts": None,
-            "hbp": None,
-            "sac_fly": None,
-            "sac_bunt": None,
-            "rbi": None,
-            "stolen_bases": "SB",
-            "caught_stealing": "CS",
-            "avg": st.column_config.NumberColumn( "BA", format="%.3f", ),
-            "obp": st.column_config.NumberColumn( "OBP", format="%.3f", ),
-            "slg": st.column_config.NumberColumn( "SLG", format="%.3f", ),
-            "ops": st.column_config.NumberColumn( "OPS", format="%.3f", ),
-            "babip": None,
-            "total_bases": None,
-            "pa": None,
-            "k_rate": st.column_config.NumberColumn( "K%", format="%.4f", step=0.0001),
-            "bb_rate": st.column_config.NumberColumn( "BB%", format="%.4f", step=0.0001),
-            "iso": st.column_config.NumberColumn( "ISO", format="%.3f", ),
-            "sample_size_category": None,
-        },
+        column_config=basic_hitters_column_config,
         use_container_width=True,
         hide_index=True
     )
@@ -297,12 +178,11 @@ with hitters_tab:
 with pitchers_tab:
     st.subheader("Cardinals MiLB Pitcher Development View")
 
+    pitching = get_all_pitching_data()
+
     col1, col2, col3= st.columns(3)
 
-    pitching_seasons = sorted(
-        pitching["season"].dropna().unique(),
-        reverse=True,
-    )
+    pitching_seasons = get_seasonal_pitching_data()
 
     with col1:
         pitching_season = st.selectbox(
@@ -316,9 +196,7 @@ with pitchers_tab:
             key="pitching_season",
         )
 
-    pitching_levels = sorted(
-        pitching["level"].dropna().unique()
-    )
+    pitching_levels = get_level_pitching_data()
 
     with col2:
         pitching_level = st.selectbox(
@@ -379,46 +257,15 @@ with pitchers_tab:
     else:
         st.info("No players match the selected filters.")
 
+    pitching_development = get_pitching_development_data()
+
     st.markdown("### Pitchers to Keep an Eye on") 
     st.caption("Find pitchers outperforming level and age baselines.") 
-    development_columns = [
-        "player_id",
-        "season",
-        "level",
-        "era_vs_level",
-        "era_vs_age_level",
-    ]
 
-    available_columns = [
-        col for col in development_columns
-        if col in pitching_development.columns
-    ]
-
-    pitcher_board = pitching.merge(
-        pitching_development[available_columns].drop_duplicates(
-            subset=["player_id", "season", "level"]
-        ),
-        on=["player_id", "season", "level"],
-        how="left",
-    )
-
-    pitcher_board = pitcher_board[
-        pitcher_board["season"] == pitching_season
-    ].copy()
-
-    if pitching_level != "All":
-        pitcher_board = pitcher_board[
-            pitcher_board["level"] == pitching_level
-        ]
-
-    pitcher_board = pitcher_board[
-        pitcher_board["ip_decimal"] >= min_ip
-    ].copy()
-
-    pitcher_board = pitcher_board.sort_values(
-        "era_vs_level",
-        ascending=True,
-        na_position="last",
+    pitcher_board = get_top_pitchers(
+        pitching_season,
+        pitching_level,
+        min_ip,
     )
 
     display_columns = [
@@ -439,16 +286,7 @@ with pitchers_tab:
 
     st.dataframe(
         pitcher_board[display_columns],
-        column_config={
-            "player_id": None,
-            "player_name": "Player",
-            "age": "Age",
-            "level": "Level",
-            "ip": "IP",
-            "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
-            "era_vs_level": st.column_config.NumberColumn( "ERA vs Level", format="%.2f", ),
-            "era_vs_age_level": st.column_config.NumberColumn( "ERA vs Age Level", format="%.2f", ),
-        },
+        column_config=get_top_pitchers_column_config(),
         hide_index=True,
         use_container_width=True,
     )
@@ -456,38 +294,7 @@ with pitchers_tab:
     st.markdown("### Full Cardinals MiLB Pitching Stats")
     pitching_frame = st.dataframe(
         filtered_pitching, 
-        column_config={
-            "player_id": None,
-            "player_name": "Player Name",
-            "team_id": None,
-            "team_name": "Team Name",
-            "season": "Season",
-            "league": None,
-            "level": "Level",
-            "position": None,
-            "age": "Age",
-            "games": None,
-            "games_started": None,
-            "wins": None,
-            "losses": None,
-            "innings_pitched": "IP",
-            "hits_allowed": None,
-            "runs_allowed": None,
-            "earned_runs": None,
-            "home_runs_allowed": None,
-            "walks": None,
-            "strikeouts": None,
-            "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
-            "whip": st.column_config.NumberColumn( "WHIP", format="%.2f", ),
-            "strikeouts_per_9": st.column_config.NumberColumn( "K/9", format="%.2f", ),
-            "walks_per_9": st.column_config.NumberColumn( "BB/9", format="%.2f", ),
-            "hits_per_9": st.column_config.NumberColumn( "H/9", format="%.2f", ),
-            "strikeout_walk_ratio": st.column_config.NumberColumn( "K/BB", format="%.2f", ),
-            "saves": None,
-            "holds": None,
-            "ip_decimal": None,
-            "hr_per_9": st.column_config.NumberColumn( "HR/9", format="%.2f", ),
-        },
+        column_config=get_basic_pitching_column_config(),
         use_container_width=True,
         hide_index=True
     )
