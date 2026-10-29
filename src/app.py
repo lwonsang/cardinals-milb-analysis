@@ -141,6 +141,7 @@ with hitters_tab:
     display_columns = [
         "player_id",
         "player_name",
+        "season",
         "age",
         "position",
         "level",
@@ -270,9 +271,10 @@ with pitchers_tab:
     display_columns = [
         "player_id",
         "player_name",
+        "season",
         "age",
         "level",
-        "ip",
+        "innings_pitched",
         "era",
         "era_vs_level",
         "era_vs_age_level",

@@ -145,6 +145,7 @@ def get_top_hitters_column_config():
     column_config={
         "player_id": None,
         "player_name": "Player",
+        "season": "Season",
         "age": "Age",
         "position": "Position",
         "level": "Level",

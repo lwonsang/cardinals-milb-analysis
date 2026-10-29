@@ -126,9 +126,10 @@ def get_top_pitchers_column_config():
     column_config={
         "player_id": None,
         "player_name": "Player",
+        "season": "Season",
         "age": "Age",
         "level": "Level",
-        "ip": "IP",
+        "innings_pitched": "IP",
         "era": st.column_config.NumberColumn( "ERA", format="%.2f", ),
         "era_vs_level": st.column_config.NumberColumn( "ERA vs Level", format="%.2f", ),
         "era_vs_age_level": st.column_config.NumberColumn( "ERA vs Age Level", format="%.2f", ),
