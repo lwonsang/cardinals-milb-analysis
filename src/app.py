@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from components.batting_data import get_seasonal_batting_data, get_level_batting_data, get_positional_batting_data, get_all_batting_data, get_hitting_development_data, get_top_hitters, get_basic_batting_column_config, get_top_hitters_column_config
 from components.pitching_data import get_seasonal_pitching_data, get_level_pitching_data, get_all_pitching_data, get_pitching_development_data, get_top_pitchers, get_basic_pitching_column_config, get_top_pitchers_column_config
 

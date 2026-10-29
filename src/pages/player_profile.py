@@ -1,7 +1,5 @@
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
-from processing.config import LEVEL_ORDER
 from components.status_data import get_status_data
 from components.batting_data import get_all_batting_data, get_hitting_development_data, get_basic_batting_column_config, get_hitter_baseline_comparison_column_config
 from components.pitching_data import get_all_pitching_data, get_pitching_development_data, get_basic_pitching_column_config, get_pitcher_baseline_comparison_column_config
@@ -360,5 +358,3 @@ with pitchers_tab:
     fig.update_layout(margin=dict(l=20, r=20, t=60, b=20))
 
     st.plotly_chart(fig, use_container_width=True)
-    
- 
